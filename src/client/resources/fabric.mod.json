@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "matrix",
+  "version": "0.0.2",
+  "name": "matrix",
+  "description": "",
+  "authors": [
+    "0mlml"
+  ],
+  "contact": {
+    "repo": "https://github.com/0mlml/korppu"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/matrix/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.mlml.matrix.MatrixMod"
+    ]
+  },
+  "mixins": [
+    "matrix.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.10",
+    "fabric": "*",
+    "minecraft": "1.21.4"
+  }
+}

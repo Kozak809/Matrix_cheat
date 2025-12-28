@@ -1,0 +1,17 @@
+{
+  "category.matrix": "Matrix",
+  "key.matrix.antiaim_toggle": "Toggle anti-aim",
+  "key.matrix.backtrack_toggle": "Toggle backtrack",
+  "key.matrix.edgejump_toggle": "Toggle edge jump",
+  "key.matrix.fastmine_toggle": "Toggle fast mine",
+  "key.matrix.fastplace_toggle": "Toggle fast place",
+  "key.matrix.flight_toggle": "Toggle flight",
+  "key.matrix.freecam_toggle": "Toggle freecam",
+  "key.matrix.headsupdisplay_toggle": "Toggle HUD",
+  "key.matrix.instabow_toggle": "Toggle instabow",
+  "key.matrix.longjump_toggle": "Toggle long jump",
+  "key.matrix.nofall_toggle": "Toggle no fall",
+  "key.matrix.onlineprotections_toggle": "Toggle online protections",
+  "key.matrix.passives_toggle": "Toggle passives",
+  "key.matrix.pingspoof_toggle": "Toggle ping spoof"
+}

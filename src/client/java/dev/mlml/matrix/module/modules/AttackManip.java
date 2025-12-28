@@ -1,0 +1,96 @@
+package dev.mlml.matrix.module.modules;
+
+import dev.mlml.matrix.MatrixMod;
+import dev.mlml.matrix.config.ListSetting;
+import dev.mlml.matrix.event.Listener;
+import dev.mlml.matrix.event.events.PacketEvent;
+import dev.mlml.matrix.module.Module;
+import dev.mlml.matrix.module.ModuleManager;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.util.math.Vec3d;
+
+public class AttackManip extends Module {
+    private final ListSetting<Mode> mode = config.add(new ListSetting<>("Mode", "Critical or Knockback mode", Mode.DoubleHop));
+
+    public AttackManip() {
+        super("AttackManip", "Executes packet manipulation for crits/kb", -1);
+
+        MatrixMod.eventManager.register(this);
+    }
+
+    @Override
+    public String getStatus() {
+        return mode.getValue().name();
+    }
+
+    @Listener
+    public void onPacketSend(PacketEvent.Sent event) {
+        if (!isEnabled() || MatrixMod.mc.player == null || MatrixMod.mc.getNetworkHandler() == null) {
+            return;
+        }
+
+        if (event.getPacket() instanceof PlayerInteractEntityC2SPacket) {
+            Vec3d playerPos = MatrixMod.mc.player.getPos();
+            boolean wasNofallEnabled = ModuleManager.getModule(NoFall.class).isEnabled();
+            ModuleManager.getModule(NoFall.class).setEnabled(false);
+
+            switch (mode.getValue()) {
+                case DoubleHop -> handleDoubleHopCriticals(playerPos);
+                case JumpReset -> handleJumpResetCriticals(playerPos);
+                case MinimalLift -> handleMinimalLiftCriticals(playerPos);
+                case YawKb -> handleYawKnockback(playerPos);
+                case SprintKb -> handleSprintKnockback(playerPos);
+            }
+
+            ModuleManager.getModule(NoFall.class).setEnabled(wasNofallEnabled);
+        }
+    }
+
+    private void handleDoubleHopCriticals(Vec3d playerPos) {
+        PlayerMoveC2SPacket.PositionAndOnGround jump = new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y + 0.2, playerPos.z, true, MatrixMod.mc.player.horizontalCollision);
+        PlayerMoveC2SPacket.PositionAndOnGround fall = new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y, playerPos.z, false, MatrixMod.mc.player.horizontalCollision);
+        PlayerMoveC2SPacket.PositionAndOnGround lift = new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y + 0.000011, playerPos.z, false, MatrixMod.mc.player.horizontalCollision);
+        PlayerMoveC2SPacket.PositionAndOnGround stab = new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y, playerPos.z, false, MatrixMod.mc.player.horizontalCollision);
+
+        sendCriticalPackets(jump, fall, lift, stab);
+    }
+
+    private void handleJumpResetCriticals(Vec3d playerPos) {
+        PlayerMoveC2SPacket.PositionAndOnGround reset = new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y, playerPos.z, true, MatrixMod.mc.player.horizontalCollision);
+        PlayerMoveC2SPacket.PositionAndOnGround jump = new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y + 0.4, playerPos.z, false, MatrixMod.mc.player.horizontalCollision);
+        PlayerMoveC2SPacket.PositionAndOnGround land = new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y, playerPos.z, false, MatrixMod.mc.player.horizontalCollision);
+
+        sendCriticalPackets(reset, jump, land);
+    }
+
+    private void handleMinimalLiftCriticals(Vec3d playerPos) {
+        PlayerMoveC2SPacket.PositionAndOnGround subtleLift = new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y + 0.005, playerPos.z, false, MatrixMod.mc.player.horizontalCollision);
+        PlayerMoveC2SPacket.PositionAndOnGround resetPosition = new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y, playerPos.z, false, MatrixMod.mc.player.horizontalCollision);
+
+        sendCriticalPackets(subtleLift, resetPosition);
+    }
+
+    private void handleYawKnockback(Vec3d playerPos) {
+        MatrixMod.mc.getNetworkHandler().sendPacket(new ClientCommandC2SPacket(MatrixMod.mc.player, ClientCommandC2SPacket.Mode.START_SPRINTING));
+        MatrixMod.mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x + 0.1 * MatrixMod.mc.player.getRotationVec(1f).x, playerPos.y + 0.05, playerPos.z + 0.1 * MatrixMod.mc.player.getRotationVec(1f).z, false, MatrixMod.mc.player.horizontalCollision));
+        MatrixMod.mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y, playerPos.z, true, MatrixMod.mc.player.horizontalCollision));
+    }
+
+    private void handleSprintKnockback(Vec3d playerPos) {
+        MatrixMod.mc.getNetworkHandler().sendPacket(new ClientCommandC2SPacket(MatrixMod.mc.player, ClientCommandC2SPacket.Mode.START_SPRINTING));
+        MatrixMod.mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y + 0.1, playerPos.z, false, MatrixMod.mc.player.horizontalCollision));
+        MatrixMod.mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(playerPos.x, playerPos.y, playerPos.z, true, MatrixMod.mc.player.horizontalCollision));
+    }
+
+    private void sendCriticalPackets(PlayerMoveC2SPacket.PositionAndOnGround... packets) {
+        for (PlayerMoveC2SPacket.PositionAndOnGround packet : packets) {
+            MatrixMod.mc.getNetworkHandler().sendPacket(packet);
+        }
+    }
+
+    public enum Mode {
+        DoubleHop, JumpReset, MinimalLift, YawKb, SprintKb
+    }
+}
