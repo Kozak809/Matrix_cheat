@@ -5,12 +5,13 @@ import dev.mlml.matrix.config.ConfigWriter;
 import dev.mlml.matrix.event.EventManager;
 import dev.mlml.matrix.module.ModuleManager;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MatrixMod implements ClientModInitializer {
-    public static final String VERSION = "0.1.0";
+    public static final String VERSION = FabricLoader.getInstance().getModContainer("matrix").get().getMetadata().getVersion().getFriendlyString();
 
     public static final Logger LOGGER = LogManager.getLogger("Matrix");
 

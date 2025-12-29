@@ -2,18 +2,12 @@
 
 ### Minecraft cheat client mod
 
-#### You can find a build in `releases/matrix.jar`
+### v 0.1.0
 
-- The gui is =
-- Press the keybind to toggle the module
-- Press rightshift + the keybind to configure a module
-- Binds should be in the vanilla minecraft keybind menu
+Собран скелет мода, добавлены основные зависимости и настроен gradle.
+Создан GUI
 
-Pretty rough visually and lacking in function right now.
-Hud looks like this: 
+### v 0.2.0
 
-![matrix hud](.github/HUD.png)
-
-Config screens look like this:
-
-![matrix config](.github/KAconfig.png)
+В версии 0.2.0 была внедрена система динамического управления версиями, позволяющая централизованно изменять версию проекта в файле gradle.properties с автоматическим обновлением в HUD и метаданных мода через
+  FabricLoader, а также добавлен полноценный модуль FullBright, который эмулирует эффект ночного зрения через систему миксинов и заменяет старую упрощенную настройку в разделе пассивных функций.

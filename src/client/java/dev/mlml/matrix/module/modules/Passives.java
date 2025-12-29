@@ -18,7 +18,6 @@ public class Passives extends Module {
     private final DoubleSetting blockReachDistance = config.add(new DoubleSetting("Block Reach Distance", "Reach distance", 6.0, 1.0, 10.0, 1));
     @Getter
     private final DoubleSetting entityReachDistance = config.add(new DoubleSetting("Entity Reach Distance", "Entity reach distance", 6.0, 1.0, 10.0, 1));
-    private final BooleanSetting fullBright = config.add(new BooleanSetting("Full Bright", "Full bright", false));
     @Getter
     private final BooleanSetting noBreakDelay = config.add(new BooleanSetting("No Break Delay", "Break blocks faster", false));
     @Getter

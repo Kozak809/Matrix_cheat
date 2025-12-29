@@ -32,6 +32,7 @@ public class ModuleManager {
         add(new Passives(), Module.ModuleType.PLAYER);
         add(new Meta(), Module.ModuleType.META);
         add(new WallHack(), Module.ModuleType.RENDER);
+        add(new FullBright(), Module.ModuleType.RENDER);
         add(new KillAura(), Module.ModuleType.COMBAT);
         add(new AttackManip(), Module.ModuleType.COMBAT);
         add(new TPRange(), Module.ModuleType.COMBAT);

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "matrix",
-  "version": "0.0.2",
+  "version": "${version}",
   "name": "matrix",
   "description": "",
   "authors": [

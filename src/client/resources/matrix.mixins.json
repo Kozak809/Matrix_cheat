@@ -23,6 +23,7 @@
     "MinecraftClientMixin",
     "IClientPlayerInteractionManagerMixin",
     "WorldRendererMixin",
-    "EntityMixin"
+    "EntityMixin",
+    "GameRendererMixin"
   ]
 }
