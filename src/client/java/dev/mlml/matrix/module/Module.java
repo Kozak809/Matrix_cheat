@@ -123,6 +123,10 @@ public abstract class Module {
         return "";
     }
 
+    public boolean isBindable() {
+        return true;
+    }
+
     public enum ModuleType {
         COMBAT,
         MOVEMENT,

@@ -57,11 +57,13 @@ public class ConfigScreen extends Screen {
         int y = GAPS;
         
         // Bind button
-        bindButton = ButtonWidget.builder(getBindText(), (button) -> {
-            binding = !binding;
-            button.setMessage(getBindText());
-        }).dimensions(width - 100 - GAPS, GAPS, 100, 20).build();
-        addDrawableChild(bindButton);
+        if (module.isBindable()) {
+            bindButton = ButtonWidget.builder(getBindText(), (button) -> {
+                binding = !binding;
+                button.setMessage(getBindText());
+            }).dimensions(width - 100 - GAPS, GAPS, 100, 20).build();
+            addDrawableChild(bindButton);
+        }
 
         List<GenericSetting<?>> settings = module.getConfig().getSettings();
 
@@ -105,7 +107,9 @@ public class ConfigScreen extends Screen {
                 module.setBind(keyCode);
             }
             binding = false;
-            bindButton.setMessage(getBindText());
+            if (bindButton != null) {
+                bindButton.setMessage(getBindText());
+            }
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);

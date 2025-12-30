@@ -8,7 +8,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +21,12 @@ public class ClickGuiScreen extends Screen {
     @Override
     protected void init() {
         if (panels.isEmpty()) {
-            ClickGui clickGui = (ClickGui) ModuleManager.getModule(ClickGui.class);
+            int x = 10;
             for (Module.ModuleType type : Module.ModuleType.values()) {
                 if (type == Module.ModuleType.NONE) continue;
                 
-                int x = clickGui.xSettings.get(type).getValue().intValue();
-                int y = clickGui.ySettings.get(type).getValue().intValue();
-                
-                panels.add(new CategoryPanel(type, x, y));
+                panels.add(new CategoryPanel(type, x, 10));
+                x += 110;
             }
         }
     }
@@ -65,10 +62,6 @@ public class ClickGuiScreen extends Screen {
              if (panel.isDragging) {
                  panel.x += (int) deltaX;
                  panel.y += (int) deltaY;
-
-                 ClickGui clickGui = (ClickGui) ModuleManager.getModule(ClickGui.class);
-                 clickGui.xSettings.get(panel.type).setValue((double) panel.x);
-                 clickGui.ySettings.get(panel.type).setValue((double) panel.y);
                  return true;
              }
          }
@@ -96,6 +89,25 @@ public class ClickGuiScreen extends Screen {
         return false;
     }
 
+    private int parseColor(String hex) {
+        if (hex.startsWith("#")) {
+            hex = hex.substring(1);
+        }
+        if (hex.length() == 3) {
+            StringBuilder sb = new StringBuilder();
+            for (char c : hex.toCharArray()) {
+                sb.append(c).append(c);
+            }
+            hex = sb.toString();
+        }
+        try {
+            int rgb = Integer.parseInt(hex, 16);
+            return 0xFF000000 | rgb;
+        } catch (NumberFormatException e) {
+            return 0xFFFFFFFF; // Fallback to white
+        }
+    }
+
     private class CategoryPanel {
         Module.ModuleType type;
         int x, y, width, height;
@@ -118,8 +130,12 @@ public class ClickGuiScreen extends Screen {
         }
 
         public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-            context.fill(x, y, x + width, y + height, 0xFF222222);
-            context.drawCenteredTextWithShadow(textRenderer, type.name(), x + width / 2, y + 5, -1);
+            ClickGui clickGui = (ClickGui) ModuleManager.getModule(ClickGui.class);
+            int bgColor = parseColor(clickGui.bgColor.getValue());
+            int textColor = parseColor(clickGui.textColor.getValue());
+
+            context.fill(x, y, x + width, y + height, bgColor);
+            context.drawCenteredTextWithShadow(textRenderer, type.name(), x + width / 2, y + 5, textColor);
 
             if (expanded) {
                 int yOffset = height;
@@ -184,14 +200,19 @@ public class ClickGuiScreen extends Screen {
         }
 
         public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-            int color = module.isEnabled() ? 0xFF00AA00 : 0xFF444444;
+            ClickGui clickGui = (ClickGui) ModuleManager.getModule(ClickGui.class);
+            int activeColor = parseColor(clickGui.activeColor.getValue());
+            int elemColor = parseColor(clickGui.elementColor.getValue());
+            int textColor = parseColor(clickGui.textColor.getValue());
+
+            int color = module.isEnabled() ? activeColor : elemColor;
             if (binding) color = 0xFFAAAA00;
             
             context.fill(x, y, x + width, y + height, color);
-            context.drawTextWithShadow(textRenderer, module.getName(), x + 4, y + 4, -1);
+            context.drawTextWithShadow(textRenderer, module.getName(), x + 4, y + 4, textColor);
             
             if (binding) {
-                context.drawTextWithShadow(textRenderer, "...", x + width - 15, y + 4, -1);
+                context.drawTextWithShadow(textRenderer, "...", x + width - 15, y + 4, textColor);
             }
         }
 
@@ -206,7 +227,9 @@ public class ClickGuiScreen extends Screen {
                     client.setScreen(new ConfigScreen(ClickGuiScreen.this, module)); 
                     return true;
                 } else if (button == 2) {
-                    binding = !binding;
+                    if (module.isBindable()) {
+                        binding = !binding;
+                    }
                     return true;
                 }
             }

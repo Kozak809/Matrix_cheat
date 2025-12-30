@@ -1,7 +1,7 @@
 package dev.mlml.matrix.module.modules;
 
 import dev.mlml.matrix.MatrixMod;
-import dev.mlml.matrix.config.DoubleSetting;
+import dev.mlml.matrix.config.StringSetting;
 import dev.mlml.matrix.gui.ClickGuiScreen;
 import dev.mlml.matrix.module.Module;
 import org.lwjgl.glfw.GLFW;
@@ -10,24 +10,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClickGui extends Module {
-    public final Map<ModuleType, DoubleSetting> xSettings = new HashMap<>();
-    public final Map<ModuleType, DoubleSetting> ySettings = new HashMap<>();
+
+    public final StringSetting bgColor = new StringSetting("BgColor", "Background Color (Hex)", "222222");
+    public final StringSetting activeColor = new StringSetting("ActiveColor", "Active Color (Hex)", "00AA00");
+    public final StringSetting elementColor = new StringSetting("ElementColor", "Element Color (Hex)", "444444");
+    public final StringSetting textColor = new StringSetting("TextColor", "Text Color (Hex)", "FFFFFF");
 
     public ClickGui() {
-        super("ClickGUI", "Opens the Click GUI", GLFW.GLFW_KEY_RIGHT_SHIFT);
+        super("ClickGUI", "Manages the visual style of the Click GUI", GLFW.GLFW_KEY_UNKNOWN);
+        config.add(bgColor);
+        config.add(activeColor);
+        config.add(elementColor);
+        config.add(textColor);
+    }
 
-        int x = 10;
-        for (ModuleType type : ModuleType.values()) {
-            if (type == ModuleType.NONE) continue;
-
-            DoubleSetting xSet = config.add(new DoubleSetting(type.name() + "X", "X position of " + type.name(), (double) x, 0.0, 3000.0, 0));
-            DoubleSetting ySet = config.add(new DoubleSetting(type.name() + "Y", "Y position of " + type.name(), 10.0, 0.0, 3000.0, 0));
-
-            xSettings.put(type, xSet);
-            ySettings.put(type, ySet);
-
-            x += 110;
-        }
+    @Override
+    public boolean isBindable() {
+        return false;
     }
 
     @Override
