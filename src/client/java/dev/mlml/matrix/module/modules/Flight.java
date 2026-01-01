@@ -130,7 +130,7 @@ public class Flight extends Module {
             Vec3d playerPosition = MatrixMod.mc.player.getPos();
             double yPos = movePacket.getY(playerPosition.y);
 
-            if (bypassVanillaAc.getValue()) {
+            if (bypassVanillaAc.getValue() && MatrixMod.mc.player.getAbilities().flying) {
                 movePacket = processMovePacket(movePacket, playerPosition);
                 yPos = movePacket.getY(playerPosition.y);
                 packetEvent.setPacket(movePacket);

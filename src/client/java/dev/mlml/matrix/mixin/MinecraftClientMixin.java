@@ -1,9 +1,13 @@
 package dev.mlml.matrix.mixin;
 
+import dev.mlml.matrix.MatrixMod;
 import dev.mlml.matrix.gui.ClickGuiScreen;
 import dev.mlml.matrix.module.ModuleManager;
+import dev.mlml.matrix.module.modules.AutoRespawn;
 import dev.mlml.matrix.module.modules.DropFPS;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.DeathScreen;
+import net.minecraft.client.gui.screen.Screen;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,6 +41,19 @@ public class MinecraftClientMixin {
              while (client.options.useKey.wasPressed()) {
                  ((IMinecraftClientMixin) client).invokeDoItemUse();
              }
+        }
+    }
+
+    @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
+    private void onSetScreen(Screen screen, CallbackInfo ci) {
+        if (screen instanceof DeathScreen) {
+            AutoRespawn autoRespawn = (AutoRespawn) ModuleManager.getModule(AutoRespawn.class);
+            if (autoRespawn != null && autoRespawn.isEnabled()) {
+                if (MatrixMod.mc.player != null) {
+                    MatrixMod.mc.player.requestRespawn();
+                    ci.cancel();
+                }
+            }
         }
     }
 }

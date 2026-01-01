@@ -38,6 +38,7 @@ public class ModuleManager {
         add(new TPRange(), Module.ModuleType.COMBAT);
 //        add(new Replanter(), Module.ModuleType.WORLD);
         add(new Logger(), Module.ModuleType.MISC);
+        add(new AutoRespawn(), Module.ModuleType.MISC);
         add(new AtoB(), Module.ModuleType.MOVEMENT);
         add(new DropFPS(), Module.ModuleType.MISC);
 
