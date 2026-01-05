@@ -20,11 +20,6 @@ public class BooleanSetting extends GenericSetting<Boolean> {
     }
 
     @Override
-    public String[] serialize() {
-        return new String[]{"b", getName(), getValue().toString()};
-    }
-
-    @Override
     public void deserialize(String value) {
         setValue(Boolean.parseBoolean(value));
     }

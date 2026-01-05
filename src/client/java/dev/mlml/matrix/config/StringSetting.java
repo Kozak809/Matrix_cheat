@@ -23,11 +23,6 @@ public class StringSetting extends GenericSetting<String> {
     }
 
     @Override
-    public String[] serialize() {
-        return new String[]{"s", getName(), getValue()};
-    }
-
-    @Override
     public void deserialize(String value) {
         setValue(value);
     }

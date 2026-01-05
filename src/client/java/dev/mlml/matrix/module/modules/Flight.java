@@ -29,7 +29,7 @@ public class Flight extends Module {
     private double ph_lastPositionY = 0;
 
     public Flight() {
-        super("Flight", "Allows you to fly", GLFW.GLFW_KEY_Z);
+        super("Flight", "Allows you to fly", GLFW.GLFW_KEY_F);
 
         MatrixMod.eventManager.register(this);
     }

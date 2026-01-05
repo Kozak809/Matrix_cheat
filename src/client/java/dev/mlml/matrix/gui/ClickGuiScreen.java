@@ -16,19 +16,18 @@ public class ClickGuiScreen extends Screen {
 
     public ClickGuiScreen() {
         super(Text.literal("ClickGUI"));
+        
+        int x = 10;
+        for (Module.ModuleType type : Module.ModuleType.values()) {
+            if (type == Module.ModuleType.NONE) continue;
+            
+            panels.add(new CategoryPanel(type, x, 10));
+            x += 110;
+        }
     }
 
     @Override
     protected void init() {
-        if (panels.isEmpty()) {
-            int x = 10;
-            for (Module.ModuleType type : Module.ModuleType.values()) {
-                if (type == Module.ModuleType.NONE) continue;
-                
-                panels.add(new CategoryPanel(type, x, 10));
-                x += 110;
-            }
-        }
     }
 
     @Override

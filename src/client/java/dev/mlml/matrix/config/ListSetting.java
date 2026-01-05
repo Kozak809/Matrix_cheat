@@ -42,11 +42,6 @@ public class ListSetting<T extends Enum<?>> extends GenericSetting<T> {
     }
 
     @Override
-    public String[] serialize() {
-        return new String[]{"l", getName(), getValue().name()};
-    }
-
-    @Override
     public void deserialize(String value) {
         if (Arrays.stream(possible).noneMatch(t -> t.name().equals(value))) {
             MatrixMod.LOGGER.warn("Invalid value for {}: {}", name, value);

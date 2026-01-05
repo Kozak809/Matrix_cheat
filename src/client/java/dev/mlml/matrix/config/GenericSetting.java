@@ -31,10 +31,6 @@ public abstract class GenericSetting<V> {
         this.callbacks = callbacks;
     }
 
-    public String[] serialize() {
-        return new String[]{"g", name, value.toString()};
-    }
-
     @SuppressWarnings("unchecked")
     public void deserialize(String value) {
         this.value = (V) value;

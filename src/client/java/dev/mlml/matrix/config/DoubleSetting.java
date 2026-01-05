@@ -31,11 +31,6 @@ public class DoubleSetting extends GenericSetting<Double> {
     }
 
     @Override
-    public String[] serialize() {
-        return new String[]{"d", getName(), getValue().toString()};
-    }
-
-    @Override
     public void deserialize(String value) {
         double val = Double.parseDouble(value);
 

@@ -86,9 +86,11 @@ public abstract class Module {
     public void update(MinecraftClient mc) {
         initializeStates();
 
-        if (keybind.wasPressed()) {
-            toggle();
-        } else if (!name.equalsIgnoreCase("ClickGui") && bind != GLFW.GLFW_KEY_UNKNOWN) {
+        if (name.equalsIgnoreCase("ClickGui")) {
+            if (keybind.wasPressed()) {
+                toggle();
+            }
+        } else if (bind != GLFW.GLFW_KEY_UNKNOWN) {
             if (mc.currentScreen == null) {
                 boolean isPressed = InputUtil.isKeyPressed(mc.getWindow().getHandle(), bind);
                 if (isPressed && !wasPressed) {
