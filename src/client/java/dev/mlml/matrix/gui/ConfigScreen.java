@@ -30,6 +30,9 @@ public class ConfigScreen extends Screen {
     private boolean binding = false;
     private ButtonWidget bindButton;
 
+    private final List<Runnable> terminators = new ArrayList<>();
+    private List<GenericSetting<?>> currentlyVisible = new ArrayList<>();
+
     public ConfigScreen(Screen parent, Module module) {
         super(Text.literal(module.getName()));
         this.parent = parent;
@@ -42,6 +45,8 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void close() {
+        terminators.forEach(Runnable::run);
+        terminators.clear();
         if (parent != null) {
             client.setScreen(parent);
         } else {
@@ -51,6 +56,9 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void init() {
+        terminators.forEach(Runnable::run);
+        terminators.clear();
+        texts.clear();
         super.init();
 
         int x = GAPS;
@@ -66,9 +74,22 @@ public class ConfigScreen extends Screen {
         }
 
         List<GenericSetting<?>> settings = module.getConfig().getSettings();
+        currentlyVisible = new ArrayList<>();
 
         int maxHeight = 0;
         for (GenericSetting<?> s : settings) {
+            Runnable check = () -> {
+                List<GenericSetting<?>> newVisible = settings.stream().filter(setting -> setting.getIsVisible().get()).toList();
+                if (!newVisible.equals(currentlyVisible)) {
+                     if (client != null) client.execute(() -> this.init(client, width, height));
+                }
+            };
+            s.addObserver(check);
+            terminators.add(() -> s.removeObserver(check));
+
+            if (!s.getIsVisible().get()) continue;
+            currentlyVisible.add(s);
+
             ClickableWidget e = s.getAsWidget();
 
             if (x + e.getWidth() > MAX_WIDTH) {

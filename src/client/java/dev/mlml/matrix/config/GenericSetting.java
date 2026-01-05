@@ -11,15 +11,18 @@ import net.minecraft.text.Text;
 import java.util.List;
 import java.util.function.Consumer;
 
-@Getter
-@Setter
-public abstract class GenericSetting<V> {
+    @Getter
+    @Setter
+    public abstract class GenericSetting<V> {
     protected final String name;
     protected final String tooltip;
     final V defaultValue;
     final List<Consumer<V>> callbacks;
     protected String label;
     V value;
+    @Getter @Setter
+    protected java.util.function.Supplier<Boolean> isVisible = () -> true;
+    protected final List<Runnable> observers = new java.util.concurrent.CopyOnWriteArrayList<>();
 
     public GenericSetting(String name, String tooltip, V defaultValue, List<Consumer<V>> callbacks) {
         this.name = name;
@@ -31,11 +34,18 @@ public abstract class GenericSetting<V> {
         this.callbacks = callbacks;
     }
 
+    public void addObserver(Runnable observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(Runnable observer) {
+        observers.remove(observer);
+    }
+
     @SuppressWarnings("unchecked")
     public void deserialize(String value) {
         this.value = (V) value;
     }
-
     public Text asText() {
         return Text.literal(String.format("%s: %s", name, value));
     }
@@ -52,5 +62,6 @@ public abstract class GenericSetting<V> {
     public void setValue(V value) {
         this.value = value;
         callbacks.forEach(c -> c.accept(value));
+        observers.forEach(Runnable::run);
     }
 }

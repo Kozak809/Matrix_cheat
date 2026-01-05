@@ -24,9 +24,12 @@ public class PlayerEntityMixin {
     @Inject(method = "getMovementSpeed", at = @At("RETURN"), cancellable = true)
     void writeSpeed(CallbackInfoReturnable<Float> cir) {
         Speed speed = ModuleManager.getModule(Speed.class);
-        if (!speed.isEnabled() || !equals(MatrixMod.mc.player) || !speed.getMode().getValue().equals(Speed.Mode.Vanilla)) {
+        if (!speed.isEnabled() || !equals(MatrixMod.mc.player)) {
             return;
         }
-        cir.setReturnValue((float) (cir.getReturnValue() * speed.getVanillaSpeed().getValue()));
+        Speed.Mode mode = speed.getMode().getValue();
+        if (mode == Speed.Mode.Vanilla || mode == Speed.Mode.VanillaAlt) {
+            cir.setReturnValue((float) (cir.getReturnValue() * speed.getSpeedIncrease().getValue()));
+        }
     }
 }

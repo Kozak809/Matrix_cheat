@@ -11,34 +11,40 @@ import org.lwjgl.glfw.GLFW;
 public class Speed extends Module {
     @Getter
     private final ListSetting<Mode> mode = config.add(new ListSetting<>("Mode", "Speed mode", Mode.Vanilla));
+    
     @Getter
-    private final DoubleSetting vanillaSpeed = config.add(new DoubleSetting("Vanilla Speed", "Speed in vanilla mode", 2.0, 0.0, 20.0, 1));
-    private final DoubleSetting bhopDistance = config.add(new DoubleSetting("BHop Distance", "Distance to jump", 2.0, 0.0, 20.0, 1));
+    private final DoubleSetting speedIncrease = config.add(new DoubleSetting("Speed Increase", "Speed multiplier while running", 1.0, 0.0, 20.0, 1));
+    @Getter
+    private final DoubleSetting jumpLength = config.add(new DoubleSetting("Jump Length", "Jump length (Distance/Air)", 2.0, 0.0, 20.0, 1));
+    
+    @Getter
+    private final DoubleSetting bhopDistance = config.add(new DoubleSetting("BHop Distance", "Distance to jump in BHop", 2.0, 0.0, 20.0, 1));
 
     public Speed() {
         super("Speed", "Go fast", GLFW.GLFW_KEY_C);
+        
+        speedIncrease.setIsVisible(() -> mode.getValue() == Mode.Vanilla || mode.getValue() == Mode.VanillaAlt);
+        jumpLength.setIsVisible(() -> mode.getValue() == Mode.Vanilla || mode.getValue() == Mode.VanillaAlt);
+        bhopDistance.setIsVisible(() -> mode.getValue() == Mode.BHop);
     }
 
     @Override
     public void onTick() {
-        if (MatrixMod.mc.player == null) {
-            return;
-        }
-
-        switch (mode.getValue()) {
-            case BHop -> doBhop();
-            case Legit -> doLegit();
-        }
+        // All logic is handled in Mixins (LivingEntityMixin and ClientPlayerEntityMixin) 
+        // for better responsiveness and to fix the "first jump" issue.
     }
 
     @Override
     public String getStatus() {
         switch (mode.getValue()) {
             case Vanilla -> {
-                return "SPD: " + vanillaSpeed.getValue();
+                return "V: " + speedIncrease.getValue() + "/" + jumpLength.getValue();
+            }
+            case VanillaAlt -> {
+                return "V-A: " + speedIncrease.getValue() + "/" + jumpLength.getValue();
             }
             case BHop -> {
-                return "DST: " + bhopDistance.getValue();
+                return "B: " + bhopDistance.getValue();
             }
             case Legit -> {
                 return "Legit";
@@ -47,7 +53,7 @@ public class Speed extends Module {
         return "";
     }
 
-    private void doBhop() {
+    public Vec3d getMovementVec(double speed) {
         Vec3d movementVec = new Vec3d(0, 0, 0);
 
         if (MatrixMod.mc.options.forwardKey.isPressed()) {
@@ -64,36 +70,12 @@ public class Speed extends Module {
         }
 
         if (movementVec.lengthSquared() > 0) {
-            movementVec = movementVec.normalize().multiply(bhopDistance.getValue() / 2);
-        } else {
-            return;
+            return movementVec.normalize().multiply(speed);
         }
-
-        if (!MatrixMod.mc.player.isOnGround()) {
-            if (MatrixMod.mc.player.getVelocity().y < 0) {
-                MatrixMod.mc.player.setVelocity(MatrixMod.mc.player.getVelocity().multiply(1, 1.1, 1));
-            }
-            return;
-        }
-
-        Vec3d hop = new Vec3d(movementVec.x, 0.42, movementVec.z);
-        MatrixMod.mc.player.setVelocity(hop);
-    }
-
-    private void doLegit() {
-        if (!MatrixMod.mc.options.forwardKey.isPressed() || MatrixMod.mc.options.backKey.isPressed()) {
-            return;
-        }
-
-        if (MatrixMod.mc.player.isSneaking() || MatrixMod.mc.player.isClimbing() || !MatrixMod.mc.player.isOnGround() || MatrixMod.mc.player.horizontalCollision) {
-            return;
-        }
-
-        MatrixMod.mc.player.setSprinting(true);
-        MatrixMod.mc.player.jump();
+        return null;
     }
 
     public enum Mode {
-        Vanilla, BHop, Legit,
+        Vanilla, VanillaAlt, BHop, Legit,
     }
 }
