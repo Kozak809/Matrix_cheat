@@ -9,11 +9,14 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ModuleManager {
     @Getter
     private static final List<Module> modules = new ArrayList<>();
+    private static final Map<Class<? extends Module>, Module> moduleMap = new HashMap<>();
 
     public static void init() {
         add(new ClickGui(), Module.ModuleType.RENDER);
@@ -43,11 +46,28 @@ public class ModuleManager {
         add(new DropFPS(), Module.ModuleType.MISC);
 
         for (Module m : modules) {
-            KeyBindingHelper.registerKeyBinding(m.getKeybind());
-            ClientTickEvents.END_CLIENT_TICK.register(m::update);
-            HudRenderCallback.EVENT.register(m::renderDraw);
-            WorldRenderEvents.LAST.register(m::worldDraw);
+            if (m instanceof ClickGui) {
+                KeyBindingHelper.registerKeyBinding(m.getKeybind());
+            }
         }
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            for (Module m : modules) {
+                m.update(client);
+            }
+        });
+
+        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+            for (Module m : modules) {
+                m.renderDraw(drawContext, tickDelta);
+            }
+        });
+
+        WorldRenderEvents.LAST.register(context -> {
+            for (Module m : modules) {
+                m.worldDraw(context);
+            }
+        });
 
         MatrixMod.LOGGER.info("Initialized " + modules.size() + " modules");
     }
@@ -55,6 +75,7 @@ public class ModuleManager {
     private static void add(Module module, Module.ModuleType category) {
         module.setCategory(category);
         modules.add(module);
+        moduleMap.put(module.getClass(), module);
     }
 
     public static boolean doNotSendPackets() {
@@ -69,12 +90,7 @@ public class ModuleManager {
 
     @SuppressWarnings("unchecked")
     public static <T extends Module> T getModule(Class<T> moduleClass) {
-        for (Module module : modules) {
-            if (module.getClass().equals(moduleClass)) {
-                return (T) module;
-            }
-        }
-        return null;
+        return (T) moduleMap.get(moduleClass);
     }
 
     public static Module getModuleByStringIgnoreCase(String name) {

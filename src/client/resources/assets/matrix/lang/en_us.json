@@ -1,4 +1,6 @@
 {
+  "category.MatrixMod": "Matrix",
+  "key.MatrixMod.clickgui_toggle": "Menu",
   "category.matrix": "Matrix",
   "key.matrix.antiaim_toggle": "Toggle anti-aim",
   "key.matrix.backtrack_toggle": "Toggle backtrack",

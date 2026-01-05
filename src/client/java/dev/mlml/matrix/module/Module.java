@@ -29,14 +29,19 @@ public abstract class Module {
     @Getter
     protected Config config;
     @Getter
-    private boolean enabled;
+    private volatile boolean enabled;
     @Getter
     @Setter
     private ModuleType category = ModuleType.NONE;
 
+    @Getter
+    private int bind;
+    private boolean wasPressed;
+
     public Module(String name, String description, int key) {
         this.name = name;
         this.description = description;
+        this.bind = key;
 
         keybind = new KeyBinding("key.MatrixMod." + name.replaceAll(" ", "").toLowerCase() + "_toggle", key, "category.MatrixMod");
 
@@ -47,6 +52,7 @@ public abstract class Module {
     }
 
     public void setBind(int keyCode) {
+        this.bind = keyCode;
         this.keybind.setBoundKey(InputUtil.fromKeyCode(keyCode, 0));
     }
 
@@ -79,8 +85,17 @@ public abstract class Module {
 
     public void update(MinecraftClient mc) {
         initializeStates();
+
         if (keybind.wasPressed()) {
             toggle();
+        } else if (!name.equalsIgnoreCase("ClickGui") && bind != GLFW.GLFW_KEY_UNKNOWN) {
+            if (mc.currentScreen == null) {
+                boolean isPressed = InputUtil.isKeyPressed(mc.getWindow().getHandle(), bind);
+                if (isPressed && !wasPressed) {
+                    toggle();
+                }
+                wasPressed = isPressed;
+            }
         }
 
 

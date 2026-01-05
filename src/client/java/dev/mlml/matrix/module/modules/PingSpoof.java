@@ -15,9 +15,10 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PingSpoof extends Module {
-    final List<WrappedPacket> saved = new ArrayList<>();
+    final List<WrappedPacket> saved = new CopyOnWriteArrayList<>();
     final Set<Integer> sentPackets = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private final DoubleSetting ping = config.add(new DoubleSetting("Ping", "Spoofed ping", 50d, 0d, 1000d, 0));

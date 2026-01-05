@@ -2,14 +2,16 @@ package dev.mlml.matrix.event;
 
 import dev.mlml.matrix.MatrixMod;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class EventManager {
-    protected final Map<Class<?>, Set<Handler<?>>> handlers = new HashMap<>();
+    protected final Map<Class<?>, Set<Handler<?>>> handlers = new ConcurrentHashMap<>();
 
     /**
      * This method is used to register an object or a class to handle events.
@@ -58,20 +60,24 @@ public class EventManager {
     }
 
     private void registerHandlerMethod(Object parent, Method method, Class<?> eventType) {
-        Handler<?> handler = event -> {
-            try {
-                if (java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
-                    method.invoke(null, event);
-                } else {
-                    method.invoke(parent, event);
+        method.setAccessible(true);
+        try {
+            MethodHandle methodHandle = MethodHandles.lookup().unreflect(method);
+            Handler<?> handler = event -> {
+                try {
+                    if (java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
+                        methodHandle.invoke(event);
+                    } else {
+                        methodHandle.invoke(parent, event);
+                    }
+                } catch (Throwable e) {
+                    MatrixMod.LOGGER.error("Error invoking event handler " + method.getName(), e);
                 }
-            } catch (Exception e) {
-                //noinspection CallToPrintStackTrace
-                e.printStackTrace();
-            }
-        };
-        handlers.computeIfAbsent(eventType, k -> new HashSet<>() {
-        }).add(handler);
+            };
+            handlers.computeIfAbsent(eventType, k -> new CopyOnWriteArraySet<>()).add(handler);
+        } catch (IllegalAccessException e) {
+            MatrixMod.LOGGER.error("Failed to access method " + method.getName(), e);
+        }
     }
 
     /**

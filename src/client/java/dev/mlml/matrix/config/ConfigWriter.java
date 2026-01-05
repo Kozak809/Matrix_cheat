@@ -3,6 +3,8 @@ package dev.mlml.matrix.config;
 import dev.mlml.matrix.MatrixMod;
 import dev.mlml.matrix.module.Module;
 import dev.mlml.matrix.module.ModuleManager;
+import dev.mlml.matrix.module.modules.ClickGui;
+import dev.mlml.matrix.gui.ClickGuiScreen;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,8 +26,26 @@ public class ConfigWriter {
                     .append(module.getName())
                     .append(RECORD_SEPARATOR)
                     .append(module.isEnabled())
+                    .append(RECORD_SEPARATOR)
+                    .append(module.getBind())
                     .append(GROUP_SEPARATOR);
             config.append(module.getConfig().serialize()).append(GROUP_SEPARATOR);
+        }
+
+        ClickGui clickGui = (ClickGui) ModuleManager.getModule(ClickGui.class);
+        if (clickGui != null && clickGui.getScreen() != null) {
+            for (ClickGuiScreen.CategoryPanel panel : clickGui.getScreen().getPanels()) {
+                config.append("p")
+                        .append(RECORD_SEPARATOR)
+                        .append(panel.type.name())
+                        .append(RECORD_SEPARATOR)
+                        .append(panel.x)
+                        .append(RECORD_SEPARATOR)
+                        .append(panel.y)
+                        .append(RECORD_SEPARATOR)
+                        .append(panel.expanded)
+                        .append(GROUP_SEPARATOR);
+            }
         }
 
         return config.toString();
@@ -41,7 +61,7 @@ public class ConfigWriter {
         for (String segment : segments) {
             String[] parts = segment.split(RECORD_SEPARATOR);
 
-            if (parts.length < 3) {
+            if (parts.length < 2) {
                 continue;
             }
 
@@ -59,9 +79,32 @@ public class ConfigWriter {
                 }
 
                 module.setEnabled(Boolean.parseBoolean(parts[2]));
+                if (parts.length >= 4) {
+                    try {
+                        module.setBind(Integer.parseInt(parts[3]));
+                    } catch (NumberFormatException e) {
+                        // ignore
+                    }
+                }
 
                 currentModule = module;
                 moduleLines.clear();
+            } else if (parts[0].equals("p")) {
+                ClickGui clickGui = (ClickGui) ModuleManager.getModule(ClickGui.class);
+                if (clickGui != null) {
+                    if (clickGui.getScreen() == null) {
+                        clickGui.setScreen(new ClickGuiScreen());
+                    }
+                    if (clickGui.getScreen() != null) {
+                        for (ClickGuiScreen.CategoryPanel panel : clickGui.getScreen().getPanels()) {
+                            if (panel.type.name().equals(parts[1])) {
+                                panel.x = Integer.parseInt(parts[2]);
+                                panel.y = Integer.parseInt(parts[3]);
+                                panel.expanded = Boolean.parseBoolean(parts[4]);
+                            }
+                        }
+                    }
+                }
             } else {
                 moduleLines.add(segment);
             }

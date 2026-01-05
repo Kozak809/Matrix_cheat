@@ -76,17 +76,16 @@ public class ClickGuiScreen extends Screen {
              }
         }
         
-        if (ModuleManager.getModule(ClickGui.class).getKeybind().matchesKey(keyCode, scanCode)) {
-            this.close();
-            return true;
-        }
-        
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    public List<CategoryPanel> getPanels() {
+        return panels;
     }
 
     private int parseColor(String hex) {
@@ -108,10 +107,10 @@ public class ClickGuiScreen extends Screen {
         }
     }
 
-    private class CategoryPanel {
-        Module.ModuleType type;
-        int x, y, width, height;
-        boolean expanded = true;
+    public class CategoryPanel {
+        public Module.ModuleType type;
+        public int x, y, width, height;
+        public boolean expanded = true;
         boolean isDragging = false;
         List<ModuleButton> buttons = new ArrayList<>();
 
