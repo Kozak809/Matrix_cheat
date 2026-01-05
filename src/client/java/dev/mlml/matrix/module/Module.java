@@ -37,6 +37,9 @@ public abstract class Module {
     @Getter
     private int bind;
     private boolean wasPressed;
+    @Getter
+    @Setter
+    private boolean holdMode = false;
 
     public Module(String name, String description, int key) {
         this.name = name;
@@ -71,6 +74,7 @@ public abstract class Module {
     }
 
     public void setEnabled(boolean enabled) {
+        if (this.enabled == enabled) return;
         this.enabled = enabled;
         if (enabled) {
             onEnable();
@@ -93,8 +97,12 @@ public abstract class Module {
         } else if (bind != GLFW.GLFW_KEY_UNKNOWN) {
             if (mc.currentScreen == null) {
                 boolean isPressed = InputUtil.isKeyPressed(mc.getWindow().getHandle(), bind);
-                if (isPressed && !wasPressed) {
-                    toggle();
+                if (holdMode) {
+                    setEnabled(isPressed);
+                } else {
+                    if (isPressed && !wasPressed) {
+                        toggle();
+                    }
                 }
                 wasPressed = isPressed;
             }

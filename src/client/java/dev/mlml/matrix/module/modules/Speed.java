@@ -21,8 +21,7 @@ public class Speed extends Module {
     private final DoubleSetting bhopDistance = config.add(new DoubleSetting("BHop Distance", "Distance to jump in BHop", 2.0, 0.0, 20.0, 1));
 
     public Speed() {
-        super("Speed", "Go fast", GLFW.GLFW_KEY_C);
-        
+        super("Speed", "Go fast", GLFW.GLFW_KEY_UNKNOWN);
         speedIncrease.setIsVisible(() -> mode.getValue() == Mode.Vanilla || mode.getValue() == Mode.VanillaAlt);
         jumpLength.setIsVisible(() -> mode.getValue() == Mode.Vanilla || mode.getValue() == Mode.VanillaAlt);
         bhopDistance.setIsVisible(() -> mode.getValue() == Mode.BHop);
