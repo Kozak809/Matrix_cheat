@@ -48,6 +48,7 @@ public class ModuleManager {
         add(new DropFPS(), Module.ModuleType.MISC);
         add(new ImageToMapart(), Module.ModuleType.MISC);
         add(new AntiKick(), Module.ModuleType.MISC);
+        add(new ResignSpam(), Module.ModuleType.MISC);
 
         for (Module m : modules) {
             if (m instanceof ClickGui) {

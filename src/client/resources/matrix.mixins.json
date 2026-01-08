@@ -29,6 +29,8 @@
     "EntityMixin",
     "GameRendererMixin",
     "BackgroundRendererMixin",
-    "ClientPlayNetworkHandlerMixin"
+    "ClientPlayNetworkHandlerMixin",
+    "MultiplayerScreenMixin",
+    "SessionMixin"
   ]
 }
