@@ -28,6 +28,7 @@
     "WorldRendererMixin",
     "EntityMixin",
     "GameRendererMixin",
-    "BackgroundRendererMixin"
+    "BackgroundRendererMixin",
+    "ClientPlayNetworkHandlerMixin"
   ]
 }

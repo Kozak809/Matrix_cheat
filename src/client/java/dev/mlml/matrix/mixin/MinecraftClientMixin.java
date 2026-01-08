@@ -5,12 +5,15 @@ import dev.mlml.matrix.event.events.FileDropEvent;
 import dev.mlml.matrix.gui.ChatHelper;
 import dev.mlml.matrix.gui.ClickGuiScreen;
 import dev.mlml.matrix.module.ModuleManager;
+import dev.mlml.matrix.module.modules.AntiKick;
 import dev.mlml.matrix.module.modules.AutoRespawn;
 import dev.mlml.matrix.module.modules.DropFPS;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.screen.DeathScreen;
+import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.spongepowered.asm.mixin.Mixin;
@@ -69,6 +72,17 @@ public class MinecraftClientMixin {
 
     @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
     private void onSetScreen(Screen screen, CallbackInfo ci) {
+        // AntiKick Silent Mode
+        if (screen instanceof ConnectScreen) {
+            AntiKick antiKick = (AntiKick) ModuleManager.getModule(AntiKick.class);
+            if (antiKick != null && antiKick.isEnabled() && antiKick.silentMode.getValue()) {
+                ChatHelper.message("§7[AntiKick] Connecting quietly...");
+                ci.cancel();
+                return;
+            }
+        }
+
+        // AutoRespawn
         if (screen instanceof DeathScreen) {
             AutoRespawn autoRespawn = (AutoRespawn) ModuleManager.getModule(AutoRespawn.class);
             if (autoRespawn != null && autoRespawn.isEnabled()) {
