@@ -1,14 +1,18 @@
 package dev.mlml.matrix.mixin;
 
 import dev.mlml.matrix.MatrixMod;
+import dev.mlml.matrix.event.events.FileDropEvent;
+import dev.mlml.matrix.gui.ChatHelper;
 import dev.mlml.matrix.gui.ClickGuiScreen;
 import dev.mlml.matrix.module.ModuleManager;
 import dev.mlml.matrix.module.modules.AutoRespawn;
 import dev.mlml.matrix.module.modules.DropFPS;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.gui.screen.Screen;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWDropCallback;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,6 +21,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MinecraftClient.class)
 public class MinecraftClientMixin {
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onInit(RunArgs args, CallbackInfo ci) {
+        MinecraftClient client = (MinecraftClient) (Object) this;
+        long handle = client.getWindow().getHandle();
+        
+        GLFW.glfwSetDropCallback(handle, (window, count, names) -> {
+            try {
+                String[] paths = new String[count];
+                for (int i = 0; i < count; i++) {
+                    paths[i] = GLFWDropCallback.getName(names, i);
+                }
+                
+                MatrixMod.eventManager.trigger(new FileDropEvent(paths));
+            } catch (Exception e) {
+                MatrixMod.LOGGER.error("Error processing file drop", e);
+            }
+        });
+    }
 
     @Inject(method = "method_47599", at = @At("HEAD"), cancellable = true, remap = false)
     private void onGetFramerateLimit(CallbackInfoReturnable<Integer> info) {

@@ -46,6 +46,7 @@ public class ModuleManager {
         add(new AutoRespawn(), Module.ModuleType.MISC);
         add(new AtoB(), Module.ModuleType.MOVEMENT);
         add(new DropFPS(), Module.ModuleType.MISC);
+        add(new ImageToMapart(), Module.ModuleType.MISC);
 
         for (Module m : modules) {
             if (m instanceof ClickGui) {

@@ -9,7 +9,8 @@
     "IPlayerMoveC2SPacketMixin",
     "IPlayerInteractEntityC2SPacketMixin",
     "LivingEntityMixin",
-    "PlayerEntityMixin"
+    "PlayerEntityMixin",
+    "INativeImageMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -22,6 +23,7 @@
     "KeyboardInputMixin",
     "KeyboardMixin",
     "MinecraftClientMixin",
+    "WindowMixin",
     "IClientPlayerInteractionManagerMixin",
     "WorldRendererMixin",
     "EntityMixin",
