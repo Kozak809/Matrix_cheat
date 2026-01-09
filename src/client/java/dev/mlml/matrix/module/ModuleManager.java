@@ -26,6 +26,7 @@ public class ModuleManager {
 //        add(new AntiAim(), Module.ModuleType.COMBAT);
         add(new OnlineProtections(), Module.ModuleType.MISC);
         add(new NoFall(), Module.ModuleType.PLAYER);
+        add(new Crawl(), Module.ModuleType.MOVEMENT);
         add(new EdgeJump(), Module.ModuleType.MOVEMENT);
         add(new Backtrack(), Module.ModuleType.COMBAT);
         add(new Freecam(), Module.ModuleType.RENDER);
